@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Results | Research Project</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .page-header {
+            background-color: var(--light-color);
+            padding: 3rem 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .page-header p {
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--dark-color);
+        }
+        
+        section {
+            padding: 4rem 0;
+        }
+        
+        .results-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .results-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .data-visualization {
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #666;
+        }
+        
+        .success-rate {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .success-rate h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-rate .percentage {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .prediction-output {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .key-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .key-box {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .key-box.original {
+            border-color: var(--primary-color);
+        }
+        
+        .key-box.predicted {
+            border-color: var(--success-color);
+        }
+        
+        .key-box h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        .key-value {
+            font-family: 'Courier New', monospace;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .accuracy-meter {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .accuracy-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .accuracy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), #2ecc71);
+            width: 92%;
+            transition: width 0.5s ease;
+        }
+        
+        .prediction-demo {
+            background-color: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .prediction-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .step-box {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .masking-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .comparison-box {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .comparison-box.before {
+            border-color: var(--accent-color);
+        }
+        
+        .comparison-box.after {
+            border-color: var(--success-color);
+        }
+        
+        .comparison-box h4 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .before h4 {
+            color: var(--accent-color);
+        }
+        
+        .after h4 {
+            color: var(--success-color);
+        }
+        
+        .result-status {
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            margin: 1rem 0;
+            font-weight: bold;
+        }
+        
+        .result-status.vulnerable {
+            background-color: #ffebee;
+            color: var(--accent-color);
+            border: 1px solid #ffcdd2;
+        }
+        
+        .result-status.protected {
+            background-color: #e8f5e8;
+            color: var(--success-color);
+            border: 1px solid #c8e6c9;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-col h3 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-col a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-col a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .contact-info p {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #bdc3c7;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0.25rem;
+            }
+            
+            .key-comparison,
+            .masking-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .prediction-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Research Project</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="methodology.html">Methodology</a></li>
+                    <li><a href="architecture.html">Architecture</a></li>
+                    <li><a href="results.html">Results</a></li>
+                    <li><a href="future-works.html">Future Works</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Research Results</h1>
+            <p>Comprehensive analysis results from our side-channel analysis research, demonstrating the effectiveness of our methodologies and countermeasures.</p>
+        </div>
+    </div>
+
+    <section>
+        <div class="container">
+            <!-- Power Analysis Results -->
+            <div class="results-card">
+                <h3>Power Analysis Results</h3>
+                <p>Our power-based side-channel analysis captured detailed power consumption data during cryptographic operations. The data was systematically collected and stored for analysis.</p>
+                
+                <div class="data-visualization">
+                    <h4>Power Consumption Data (CSV)</h4>
+                    <p>📊 Time-series power measurements collected during DES encryption operations</p>
+                    <a href="#" class="btn">Download CSV Data</a>
+                </div>
+
+                <div class="success-rate">
+                    <h4>Plain Text Prediction Accuracy</h4>
+                    <div class="percentage">84.68%</div>
+                    <p>Successfully predicted plain text from power consumption patterns</p>
+                </div>
+
+                <div class="prediction-output">
+                    <h4>Sample Prediction Output:</h4>
+                    <br>
+                    <strong>Input Plain Text:</strong> The secure password for the DevOps tool is 'DevOps!Secure#2024.<br>
+                    <strong>Predicted Output:</strong> "The secure password for the project management tool is 'PM$Secure!2024'<br>
+                    <strong>Confidence Score:</strong> 0.94<br>
+                    <strong>Analysis Time:</strong> 39ms<br>
+                </div>
+            </div>
+
+            <!-- Time Analysis Results -->
+            <div class="results-card">
+                <h3>Time Analysis Results</h3>
+                <p>Timing analysis revealed significant correlations between execution time and cryptographic key material, enabling successful key recovery attacks.</p>
+                
+                <div class="key-comparison">
+                    <div class="key-box original">
+                        <h4>Original Key</h4>
+                        <div class="key-value">
+                            2B7E151628AED2A6ABF7158809CF4F3C
+                        </div>
+                    </div>
+                    <div class="key-box predicted">
+                        <h4>Predicted Key</h4>
+                        <div class="key-value">
+                            2B7E151628AED2A6ABF7158809CF4F3C
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accuracy-meter">
+                    <h4>Matching Accuracy</h4>
+                    <div class="accuracy-bar">
+                        <div class="accuracy-fill"></div>
+                    </div>
+                    <p><strong>92% Accuracy</strong> - 14/16 bytes correctly predicted</p>
+                    <p>Attack required 8,500 timing measurements</p>
+                </div>
+            </div>
+
+            <!-- EM Analysis Results -->
+            <div class="results-card">
+                <h3>Electromagnetic (EM) Analysis Results</h3>
+                <p>Our EM analysis methodology successfully demonstrated how electromagnetic emissions can be used to predict cryptographic operations and extract sensitive information.</p>
+                
+                <div class="prediction-demo">
+                    <h4>Prediction Process Overview</h4>
+                    <div class="prediction-steps">
+                        <div class="step-box">
+                            <h5>1. Signal Capture</h5>
+                            <p>EM probe captures electromagnetic emissions during encryption operations</p>
+                        </div>
+                        <div class="step-box">
+                            <h5>2. Signal Processing</h5>
+                            <p>Digital signal processing extracts relevant features from captured waveforms</p>
+                        </div>
+                        <div class="step-box">
+                            <h5>3. Pattern Recognition</h5>
+                            <p>Machine learning algorithms identify patterns correlating with input data</p>
+                        </div>
+                        <div class="step-box">
+                            <h5>4. Prediction Output</h5>
+                            <p>System outputs predicted plaintext or key material with confidence score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prediction-output">
+                    <h4>Sample EM Prediction Result:</h4>
+                    <br>
+                    <strong>Input Data:</strong> Encrypted AES block<br>
+                    <strong>EM Signal Length:</strong> 1.2ms<br>
+                    <strong>Predicted Plaintext:</strong> "SecretMessage01"<br>
+                    <strong>Prediction Confidence:</strong> 0.89<br>
+                    <strong>Key Bytes Recovered:</strong> 12/16<br>
+                    <strong>Analysis Method:</strong> Correlation Power Analysis (CPA)
+                </div>
+            </div>
+
+            <!-- Masking Technique Results -->
+            <div class="results-card">
+                <h3>Masking Technique Effectiveness</h3>
+                <p>Our masking countermeasures significantly reduced the effectiveness of timing-based side-channel attacks, demonstrating the practical value of our protection mechanisms.</p>
+                
+                <div class="masking-comparison">
+                    <div class="comparison-box before">
+                        <h4>Before Masking Applied</h4>
+                        <div class="key-comparison">
+                            <div class="key-box">
+                                <h5>Original Key</h5>
+                                <div class="key-value">A1B2C3D4E5F6789A</div>
+                            </div>
+                            <div class="key-box">
+                                <h5>Predicted Key</h5>
+                                <div class="key-value">A1B2C3D4E5F6789A</div>
+                            </div>
+                        </div>
+                        <div class="result-status vulnerable">
+                            ⚠️ VULNERABLE - Perfect Key Recovery
+                            <br>Success Rate: 95%
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-box after">
+                        <h4>After Masking Applied</h4>
+                        <div class="key-comparison">
+                            <div class="key-box">
+                                <h5>Original Key</h5>
+                                <div class="key-value">A1B2C3D4E5F6789A</div>
+                            </div>
+                            <div class="key-box">
+                                <h5>Predicted Key</h5>
+                                <div class="key-value">7F4A92E1C8D5B3F6</div>
+                            </div>
+                        </div>
+                        <div class="result-status protected">
+                            ✅ PROTECTED - Attack Failed
+                            <br>Success Rate: 12%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prediction-output">
+                    <h4>Masking Effectiveness Summary:</h4>
+                    <br>
+                    <strong>Protection Method:</strong> Random Delay + Noise Injection<br>
+                    <strong>Attack Success Reduction:</strong> 95% → 12% (83% improvement)<br>
+                    <strong>Performance Overhead:</strong> 15% increase in execution time<br>
+                    <strong>Memory Overhead:</strong> 8% increase<br>
+                    <strong>Security Level:</strong> High resistance to timing attacks<br>
+                    <strong>Recommendation:</strong> ✅ Deploy in production environments
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>Research Project</h3>
+                    <p>A research initiative focused on side-channel analysis with the goal of improving cryptographic implementation security.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="methodology.html">Methodology</a></li>
+                        <li><a href="architecture.html">Architecture</a></li>
+                        <li><a href="results.html">Results</a></li>
+                        <li><a href="future-works.html">Future Works</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col contact-info">
+                    <h3>Contact Us</h3>
+                    <p>Department of Computer Science</p>
+                    <p>Research Institution</p>
+                    <p>123 Research Avenue</p>
+                    <p>City, State, 12345</p>
+                    <p>Email: research@example.com</p>
+                    <p>Phone: (123) 456-7890</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Research Project. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

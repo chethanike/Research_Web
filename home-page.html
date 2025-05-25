@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side-Channel Analysis Research Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4ecdc4;
+            --warning-color: #ffd93d;
+            --success-color: #6bcf7f;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #151515;
+            --bg-hover: #1f1f1f;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            
+            --border-color: #333333;
+            --shadow-color: rgba(0, 212, 255, 0.1);
+            --glow-color: rgba(0, 212, 255, 0.3);
+            
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Particle Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo img {
+            height: 80px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            transition: all 0.3s ease;
+        }
+        
+        .logo img:hover {
+            filter: drop-shadow(0 0 20px var(--primary-color));
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced Navigation */
+        nav {
+            margin-left: auto;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        nav ul li a i {
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* Gradient hover effect */
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        nav ul li a:hover::before {
+            opacity: 1;
+        }
+        
+        nav ul li a:hover {
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        nav ul li a:hover i {
+            transform: rotate(5deg) scale(1.1);
+        }
+        
+        /* Active state */
+        nav ul li a.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 8rem 0;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.1s both;
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.4s both;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 6rem 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .section-title.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            margin: 1.5rem auto;
+            border-radius: 2px;
+        }
+        
+        /* About Section */
+        #about {
+            background: var(--bg-secondary);
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .about-text {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s ease;
+        }
+        
+        .about-text.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .about-image {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s ease 0.2s;
+        }
+        
+        .about-image.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-placeholder {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+            height: 400px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .about-placeholder::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+        
+        /* Audience Section */
+        #audience {
+            background: var(--bg-primary);
+        }
+        
+        .audience-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .audience-item {
+            background: var(--bg-card);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .audience-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .audience-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .audience-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            transition: all 0.4s ease;
+        }
+        
+        .audience-item:hover .audience-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 30px var(--glow-color);
+        }
+        
+        .audience-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .audience-item p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        /* Goals Section */
+        #research {
+            background: var(--bg-secondary);
+        }
+        
+        .goals-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .goal-item {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .goal-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .goal-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.15);
+            border-color: var(--accent-color);
+        }
+        
+        .goal-item h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .goal-item h3::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        /* Team Section */
+        #team {
+            background: var(--bg-primary);
+        }
+        
+        .team-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-member {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .team-member.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .member-image {
+            height: 250px;
+            background: linear-gradient(135deg, var(--bg-hover), var(--bg-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .member-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .team-member:hover .member-image img {
+            transform: scale(1.1);
+        }
+        
+        .member-info {
+            padding: 2rem;
+        }
+        
+        .member-info h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .member-position {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+        }
+        
+        .member-info p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Publications Section */
+        #publications {
+            background: var(--bg-secondary);
+        }
+        
+        .publications-list {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .publication-item {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .publication-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .publication-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.15);
+            border-color: var(--accent-color);
+        }
+        
+        .publication-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .publication-authors {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .publication-journal {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+        }
+        
+        .publication-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .publication-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .publication-links a:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 0 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-col h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .footer-col p, .footer-col li {
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-col a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            nav ul {
+                gap: 0.25rem;
+                padding: 0.4rem;
+            }
+            
+            nav ul li a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.08);
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            nav ul li a {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .hero {
+                padding: 6rem 0;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .about-image {
+                order: -1;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .audience-list,
+            .goals-list,
+            .team-members {
+                grid-template-columns: 1fr;
+            }
+            
+            section {
+                padding: 4rem 0;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="img/logo.png" alt="Research Project Logo">
+                <div class="logo-text"></div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="home-page.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="templates/index.html"><i class="fas fa-sitemap"></i> Demo</a></li>
+                    <li><a href="results.html"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="future_works_html.html"><i class="fas fa-rocket"></i> Future Works</a></li>
+                    <li><a href="resources.html"><i class="fas fa-download"></i> Resources</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-subtitle">&lt;/&gt; Advanced Hardware Security Research</div>
+                <h1>Side-Channel Analysis Platform</h1>
+                <p>A comprehensive hardware security evaluation platform designed to identify vulnerabilities in embedded systems through sophisticated side-channel analysis techniques including power, timing, and electromagnetic measurements.</p>
+                <div class="buttons-container">
+                    <a href="#about" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Explore Research
+                    </a>
+                    <a href="templates/index.html" class="btn btn-secondary">
+                        <i class="fas fa-cogs"></i> Demo
+                    </a>
+                    <a href="results.html" class="btn btn-secondary">
+                        <i class="fas fa-chart-bar"></i> View Results
+                    </a>
+                    <a href="resources.html" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download Resources
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Our Research Platform</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Our platform represents a cutting-edge approach to hardware security evaluation, specifically designed for identifying vulnerabilities in embedded systems through advanced side-channel analysis techniques.</p>
+                    
+                    <p>The system provides comprehensive support for power consumption analysis, execution timing measurements, and electromagnetic emission monitoring, enabling researchers to observe subtle information leakages during cryptographic operations.</p>
+                    
+                    <p>With integrated machine learning capabilities, real-time data monitoring, and intuitive control interfaces, this platform serves as an essential tool for advancing hardware-level cybersecurity research and education.</p>
+                </div>
+                <div class="about-image">
+                    <div class="about-placeholder">
+                        <i class="fas fa-microchip" style="font-size: 4rem; color: var(--primary-color);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="audience">
+        <div class="container">
+            <div class="section-title">
+                <h2>Who Is This For?</h2>
+            </div>
+            <div class="audience-list">
+                <div class="audience-item">
+                    <div class="audience-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>University Research Labs</h3>
+                    <p>Perfect for academic institutions teaching hardware security and cryptography, providing hands-on experience with real-world security analysis techniques and vulnerability assessment methodologies.</p>
+                </div>
+                <div class="audience-item">
+                    <div class="audience-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Cybersecurity Researchers</h3>
+                    <p>Essential tool for cybersecurity professionals evaluating device resistance against side-channel attacks and developing innovative defense mechanisms for embedded systems.</p>
+                </div>
+                <div class="audience-item">
+                    <div class="audience-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>Embedded Product Developers</h3>
+                    <p>Invaluable for embedded systems developers building secure IoT devices, enabling comprehensive security testing and validation during the development lifecycle.</p>
+                </div>
+                <div class="audience-item">
+                    <div class="audience-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Students & Researchers</h3>
+                    <p>Ideal for students and emerging researchers learning real-world attack and defense techniques, bridging the gap between theoretical knowledge and practical cybersecurity skills.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="detail-pages-section" style="background: var(--bg-tertiary); padding: 4rem 0;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Explore Our Research</h2>
+            </div>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 3rem;">Dive deep into our comprehensive research approach, system architecture, findings, and future directions through our detailed documentation.</p>
+            <div class="buttons-container">
+                <a href="templates/index.html" class="btn btn-secondary">
+                    <i class="fas fa-sitemap"></i> Demo
+                </a>
+                <a href="results.html" class="btn btn-secondary">
+                    <i class="fas fa-chart-line"></i> Research Results
+                </a>
+                <a href="future-works.html" class="btn btn-secondary">
+                    <i class="fas fa-rocket"></i> Future Works
+                </a>
+                <a href="resources.html" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Download Resources
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="research">
+        <div class="container">
+            <div class="section-title">
+                <h2>Research Capabilities</h2>
+            </div>
+            <div class="goals-list">
+                <div class="goal-item">
+                    <h3><i class="fas fa-bolt"></i> Multi-Channel Analysis</h3>
+                    <p>Comprehensive support for power consumption analysis, execution timing measurements, and electromagnetic emission monitoring to evaluate device vulnerabilities from multiple attack vectors simultaneously.</p>
+                </div>
+                <div class="goal-item">
+                    <h3><i class="fas fa-brain"></i> Machine Learning Integration</h3>
+                    <p>Advanced automated prediction of plaintext and secret cryptographical keys using sophisticated machine learning models trained on collected side-channel data patterns.</p>
+                </div>
+                <div class="goal-item">
+                    <h3><i class="fas fa-graduation-cap"></i> Educational & Research Ready</h3>
+                    <p>Specifically designed for academic laboratories, cybersecurity courses, and R&D environments, providing hands-on experience with cryptographic security testing methodologies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="team">
+        <div class="container">
+            <div class="section-title">
+                <h2>Research Team</h2>
+            </div>
+            <div class="team-members">
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="img/chethanike.jpg" alt="Kavinga">
+                    </div>
+                    <div class="member-info">
+                        <h3>Kavinga</h3>
+                        <div class="member-position">Supervisor</div>
+                        <p>Specialized in power-based side-channel attacks, developing sophisticated data acquisition systems and applying machine learning techniques to predict cryptographic information from power consumption traces.</p>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="/api/placeholder/280/250" alt="Amila">
+                    </div>
+                    <div class="member-info">
+                        <h3>Amila Senarathne</h3>
+                        <div class="member-position">Co-Supervisor</div>
+                        <p>Expert in timing-based vulnerability analysis in encryption processes, measuring execution delays and evaluating attack feasibility on microcontroller-based embedded systems.</p>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </section>
+    <section id="team">
+        <div class="container">
+            
+            <div class="team-members">
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="img/chethanike.jpg" alt="Chethanike Anjana">
+                    </div>
+                    <div class="member-info">
+                        <h3>Chethanike Anjana</h3>
+                        <div class="member-position">Power Analysis Lead</div>
+                        <p>Specialized in power-based side-channel attacks, developing sophisticated data acquisition systems and applying machine learning techniques to predict cryptographic information from power consumption traces.</p>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="img/chamika.png" alt="Chamika Kusal">
+                    </div>
+                    <div class="member-info">
+                        <h3>Chamika Kusal</h3>
+                        <div class="member-position">Timing Analysis Researcher</div>
+                        <p>Expert in timing-based vulnerability analysis in encryption processes, measuring execution delays and evaluating attack feasibility on microcontroller-based embedded systems.</p>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="img/theshan.png" alt="Theshan Wijesinghe">
+                    </div>
+                    <div class="member-info">
+                        <h3>Theshan Wijesinghe</h3>
+                        <div class="member-position">EM Analysis Specialist</div>
+                        <p>Leading electromagnetic analysis research, capturing EM leakage data and analyzing electromagnetic signature patterns to uncover potential side-channel threats in embedded devices.</p>
+                    </div>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-image">
+                        <img src="img/rivi.jpg" alt="Rivi Perera">
+                    </div>
+                    <div class="member-info">
+                        <h3>Rivi Perera</h3>
+                        <div class="member-position">Countermeasures Developer</div>
+                        <p>Focused on designing and implementing advanced masking techniques to mitigate power, timing, and EM-based side-channel attacks, validating countermeasure effectiveness against real attack data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="publications">
+        <div class="container">
+            <div class="section-title">
+                <h2>Research Publications</h2>
+            </div>
+            <div class="publications-list">
+                <div class="publication-item">
+                    <h3>Investigating Power Analysis Attacks on Symmetric Encryption: A Case Study on DES with Arduino</h3>
+                    <div class="publication-authors">K.M.C.A. Nimsara, P.C.K. Piyathilaka, J.A.R.A.K. Perera, T.P. Wijesinghe, K. Y. Abeywardena, Amila Senarathne</div>
+                    <div class="publication-journal">Journal of Hardware Security Research, 2023</div>
+                    <p>This comprehensive study demonstrates practical power analysis attacks on DES encryption implemented on Arduino platforms, providing insights into vulnerability patterns and defensive strategies for embedded cryptographic implementations.</p>
+                    <div class="publication-links">
+                        <a href="#"><i class="fas fa-file-pdf"></i> Full Paper</a>
+                        <a href="#"><i class="fas fa-quote-left"></i> Cite</a>
+                    </div>
+                </div>
+                
+                <div class="publication-item">
+                    <h3>Dual-Method Side-Channel DES Key Recovery Using Timestamp and Machine Learning</h3>
+                    <div class="publication-authors">P.C.K. Piyathilaka, K.M.C.A. Nimsara, J.A.R.A.K. Perera, T.P. Wijesinghe, K. Y. Abeywardena, Amila Senarathne</div>
+                    <div class="publication-journal">International Conference on Cybersecurity and Privacy, 2022</div>
+                    <p>Novel approach combining timing analysis with machine learning algorithms for efficient cryptographic key recovery, demonstrating the effectiveness of hybrid side-channel attack methodologies.</p>
+                    <div class="publication-links">
+                        <a href="#"><i class="fas fa-file-pdf"></i> Full Paper</a>
+                        <a href="#"><i class="fas fa-quote-left"></i> Cite</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3><i class="fas fa-shield-alt"></i> SideChannel.Lab</h3>
+                    <p>A cutting-edge research initiative focused on advancing hardware security through comprehensive side-channel analysis techniques and countermeasure development.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-github"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-link"></i> Quick Navigation</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#about">About Research</a></li>
+                        <li><a href="architecture.html">System Architecture</a></li>
+                        <li><a href="results.html">Research Results</a></li>
+                        <li><a href="future-works.html">Future Directions</a></li>
+                        <li><a href="resources.html">Resources & Downloads</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <p><i class="fas fa-university"></i> Department of Computer Systems Engineering</p>
+                    <p><i class="fas fa-building"></i> Sri Lanka Institute of Information Technology</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Malabe, Sri Lanka</p>
+                    <p><i class="fas fa-envelope"></i> chethanike18803@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +94 71 326 5878</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SideChannel.Lab Research Project. All Rights Reserved. | Advancing Hardware Security Research</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loading Animation
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Particle System
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const nav = document.querySelector('nav');
+        
+        mobileMenuToggle.addEventListener('click', function() {
+            nav.classList.toggle('mobile-open');
+            const icon = this.querySelector('i');
+            if (nav.classList.contains('mobile-open')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create particles
+            createParticles();
+
+            // Observe elements for animation
+            const animateElements = document.querySelectorAll(
+                '.section-title, .about-text, .about-image, .audience-item, .goal-item, .team-member, .publication-item'
+            );
+
+            animateElements.forEach(el => {
+                observer.observe(el);
+            });
+
+            // Staggered animation for grid items
+            const gridItems = document.querySelectorAll('.audience-item, .goal-item, .team-member');
+            gridItems.forEach((item, index) => {
+                item.style.transitionDelay = (index * 0.1) + 's';
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Active navigation state
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Dynamic navbar background on scroll
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 100) {
+                    header.style.background = 'rgba(17, 17, 17, 0.95)';
+                    header.style.backdropFilter = 'blur(20px)';
+                } else {
+                    header.style.background = 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)';
+                    header.style.backdropFilter = 'blur(10px)';
+                }
+            });
+
+            // Enhanced button hover effects
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.02)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Typing effect for hero subtitle
+            const subtitle = document.querySelector('.hero-subtitle');
+            const text = subtitle.textContent;
+            subtitle.textContent = '';
+            
+            let i = 0;
+            const typeWriter = () => {
+                if (i < text.length) {
+                    subtitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            };
+            
+            setTimeout(typeWriter, 2000);
+
+            // Parallax effect for hero section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero');
+                const rate = scrolled * -0.5;
+                hero.style.transform = `translateY(${rate}px)`;
+            });
+
+            // Dynamic particle movement based on mouse
+            document.addEventListener('mousemove', (e) => {
+                const particles = document.querySelectorAll('.particle');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                particles.forEach((particle, index) => {
+                    const speed = (index % 5 + 1) * 0.5;
+                    const xMove = (x - 0.5) * speed;
+                    const yMove = (y - 0.5) * speed;
+                    particle.style.transform = `translate(${xMove}px, ${yMove}px)`;
+                });
+            });
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * -0.3}px)`;
+            }
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+    </script>
+</body>
+</html>

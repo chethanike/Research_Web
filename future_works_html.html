@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Works - Side-Channel Analysis Research Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4ecdc4;
+            --warning-color: #ffd93d;
+            --success-color: #6bcf7f;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #151515;
+            --bg-hover: #1f1f1f;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            
+            --border-color: #333333;
+            --shadow-color: rgba(0, 212, 255, 0.1);
+            --glow-color: rgba(0, 212, 255, 0.3);
+            
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Particle Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 1s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            height: 80px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            transition: all 0.3s ease;
+            
+            
+            
+        }
+
+        .logo img:hover {
+            filter: drop-shadow(0 0 20px var(--primary-color));
+            transform: scale(1.05);
+        }
+
+        
+
+        /* Enhanced Navigation */
+        nav {
+            margin-left: auto;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        nav ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        nav ul li a i {
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        nav ul li a:hover::before {
+            opacity: 1;
+        }
+
+        nav ul li a:hover {
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        nav ul li a:hover i {
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        nav ul li a.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 8rem 0 6rem;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.1s both;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.4s both;
+        }
+
+        /* Overview Section */
+        .overview-section {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            margin: 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .overview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .overview-text p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .overview-text strong {
+            color: var(--primary-color);
+        }
+
+        .roadmap-timeline {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .timeline-marker {
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .timeline-date {
+            font-family: var(--font-mono);
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
+
+        .timeline-title {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Development Areas */
+        .development-areas {
+            padding: 6rem 0;
+        }
+
+        .development-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+        }
+
+        .development-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .development-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .development-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .card-header {
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .development-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 30px var(--glow-color);
+        }
+
+        .card-header h3 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--primary-color);
+        }
+
+        .card-content p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .feature-item i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .feature-details h4 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-details p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Impact Goals */
+        .impact-goals {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .impact-item {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+        }
+
+        .impact-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .impact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .impact-item:hover .impact-icon {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px var(--glow-color);
+        }
+
+        .impact-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .impact-item p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Call-to-Action Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-card));
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-col h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .footer-col p, .footer-col li {
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            nav ul {
+                gap: 0.25rem;
+                padding: 0.4rem;
+            }
+            
+            nav ul li a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            .development-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .overview-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.08);
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            nav ul li a {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .hero {
+                padding: 6rem 0 4rem;
+            }
+            
+            .development-areas, .overview-section, .impact-goals {
+                padding: 4rem 0;
+            }
+            
+            .development-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .development-card {
+                padding: 2rem;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="img/logo.png" alt="Research Project Logo">
+                <div class="logo-text"></div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="home-page.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="home-page.html#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="templates/index.html"><i class="fas fa-sitemap"></i> Demo</a></li>
+                    <li><a href="results.html"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="future-works.html" class="active"><i class="fas fa-rocket"></i> Future Works</a></li>
+                    <li><a href="resources.html"><i class="fas fa-download"></i> Resources</a></li>
+                    <li><a href="home-page.html#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-subtitle">&lt;/&gt; Advancing Security Research</div>
+                <h1>Future Development</h1>
+                <p>Pushing the boundaries of embedded security research and defense, our roadmap focuses on advancing both attack-side hardware capabilities and defensive masking techniques for a more secure digital world.</p>
+                <div class="hero-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="overview-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Vision for the Future</h2>
+            </div>
+            <div class="overview-content">
+                <div class="overview-text">
+                    <p>As we continue to push the boundaries of embedded security research and defense, our product roadmap focuses on advancing both the <strong>attack-side hardware capabilities</strong> and the <strong>defensive masking techniques</strong>.</p>
+                    <p>Our comprehensive approach ensures that security researchers, educators, and developers have access to cutting-edge tools for both understanding vulnerabilities and implementing robust defenses.</p>
+                </div>
+                <div class="roadmap-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">Q2 2025</span>
+                            <span class="timeline-title">Hardware Upgrades</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">Q3 2025</span>
+                            <span class="timeline-title">ML Enhancement</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">Q4 2025</span>
+                            <span class="timeline-title">Masking Systems</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-date">2026</span>
+                            <span class="timeline-title">Complete Framework</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Development Areas -->
+    <section class="development-areas">
+        <div class="container">
+            <div class="section-title">
+                <h2>Key Development Areas</h2>
+            </div>
+            <div class="development-grid">
+                <!-- Hardware Capabilities -->
+                <div class="development-card hardware-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <h3>Advanced Hardware Capabilities</h3>
+                        <div class="card-badge">Priority: High</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Upgrading our portable side-channel attack device to support more sophisticated and real-time analysis across EM, power consumption, and timing side channels.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fas fa-broadcast-tower"></i>
+                                <div class="feature-details">
+                                    <h4>Real-Time EM Trace Capture</h4>
+                                    <p>Integrating high-resolution oscilloscopes with Raspberry Pi platforms for dynamic electromagnetic emission capture.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-chart-line"></i>
+                                <div class="feature-details">
+                                    <h4>Higher Resolution Sampling</h4>
+                                    <p>Capturing power and timing data at finer granularity for deeper leakage analysis and vulnerability detection.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-code"></i>
+                                <div class="feature-details">
+                                    <h4>Cross-Algorithm Support</h4>
+                                    <p>Extending support beyond DES to AES, RSA, and lightweight ciphers used in IoT devices.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-mobile-alt"></i>
+                                <div class="feature-details">
+                                    <h4>Portable Interface & Logging</h4>
+                                    <p>Adding onboard UI and logging for stand-alone operation and live trace visualization.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Machine Learning -->
+                <div class="development-card ml-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Smarter Machine Learning Models</h3>
+                        <div class="card-badge">Priority: High</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Continuously improving our ML models that predict cryptographic keys from side-channel data with enhanced accuracy and efficiency.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fas fa-network-wired"></i>
+                                <div class="feature-details">
+                                    <h4>Hybrid Deep Learning Architectures</h4>
+                                    <p>Combining LSTM temporal modeling with CNN spatial pattern recognition for superior trace interpretation.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-cogs"></i>
+                                <div class="feature-details">
+                                    <h4>Hyperparameter Optimization</h4>
+                                    <p>Fine-tuning batch sizes, learning rates, and epochs for efficient training and maximum accuracy.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-database"></i>
+                                <div class="feature-details">
+                                    <h4>Generalized Learning</h4>
+                                    <p>Training models on broader datasets with diverse plaintexts and keys for robust cross-scenario performance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Masking Techniques -->
+                <div class="development-card masking-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Next-Gen Masking Technique</h3>
+                        <div class="card-badge">Priority: Medium</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Enhancing our masking system to defend against advanced attacks including power and EM analysis beyond current time-based protection.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fas fa-puzzle-piece"></i>
+                                <div class="feature-details">
+                                    <h4>Universal Masking Compatibility</h4>
+                                    <p>Developing algorithms to support multiple encryption schemes like AES and RSA for broader adoption.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-desktop"></i>
+                                <div class="feature-details">
+                                    <h4>Enhanced User Interface</h4>
+                                    <p>Creating intuitive GUI for easy integration and testing by researchers and developers.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-random"></i>
+                                <div class="feature-details">
+                                    <h4>Dynamic Masking Strategies</h4>
+                                    <p>Introducing random delays, fake operations, and format-preserving transformations for enhanced obfuscation.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-clock"></i>
+                                <div class="feature-details">
+                                    <h4>Real-Time Protection Module</h4>
+                                    <p>Deploying masking as a lightweight real-time protection layer in embedded systems.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Framework -->
+                <div class="development-card framework-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>End-to-End Security Framework</h3>
+                        <div class="card-badge">Priority: Medium</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Creating a comprehensive and secure cryptographic ecosystem that integrates multiple layers of protection and verification.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fas fa-key"></i>
+                                <div class="feature-details">
+                                    <h4>Secure Key Management</h4>
+                                    <p>Automated and tamper-resistant key generation, storage, and renewal mechanisms for enhanced security.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="feature-details">
+                                    <h4>Integrity & Verification Layers</h4>
+                                    <p>Adding hash-based integrity checks and secure boot mechanisms to detect tampering attempts.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-arrow-up"></i>
+                                <div class="feature-details">
+                                    <h4>Migration to Stronger Algorithms</h4>
+                                    <p>Transitioning from DES to AES or other robust encryption standards for improved security.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-stopwatch"></i>
+                                <div class="feature-details">
+                                    <h4>Constant-Time Execution</h4>
+                                    <p>Ensuring cryptographic functions execute in constant time to prevent timing-based attacks.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Support -->
+                <div class="development-card community-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Community & Research Support</h3>
+                        <div class="card-badge">Priority: Low</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Building a strong community around our research platform and providing comprehensive support for educational and research activities.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <i class="fab fa-github"></i>
+                                <div class="feature-details">
+                                    <h4>Open-Source Contributions</h4>
+                                    <p>Making portions of our toolset and datasets available for academic use and community development.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <div class="feature-details">
+                                    <h4>Educational Resources</h4>
+                                    <p>Offering comprehensive documentation, tutorials, and workshops for researchers, educators, and students.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-item">
+                                <i class="fas fa-cubes"></i>
+                                <div class="feature-details">
+                                    <h4>Modular Development Platform</h4>
+                                    <p>Providing modular components for easy integration into custom hardware and research setups.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Goals -->
+    <section class="impact-goals">
+        <div class="container">
+            <div class="section-title">
+                <h2>Expected Impact & Goals</h2>
+            </div>
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <div class="impact-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <h3>Comprehensive Security Tool</h3>
+                    <p>Deliver a complete, portable, and powerful tool for both attacking and defending cryptographic systems across multiple attack vectors.</p>
+                </div>
+                
+                <div class="impact-item">
+                    <div class="impact-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Global Research Community</h3>
+                    <p>Foster collaboration and knowledge sharing among security researchers, educators, and industry professionals worldwide.</p>
+                </div>
+                
+                <div class="impact-item">
+                    <div class="impact-icon">
+                        <i class="fas fa-shield"></i>
+                    </div>
+                    <h3>Enhanced Digital Security</h3>
+                    <p>Contribute to a more secure digital world by advancing both attack understanding and defense mechanisms.</p>
+                </div>
+                
+                <div class="impact-item">
+                    <div class="impact-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Innovation Catalyst</h3>
+                    <p>Inspire new research directions and innovative approaches to embedded system security and cryptographic protection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Join Our Research Journey</h2>
+                <p>Be part of advancing embedded security research and contribute to building more secure digital systems for the future.</p>
+                <div class="cta-buttons">
+                    <a href="home-page.html#contact" class="btn btn-primary">
+                        <i class="fas fa-envelope"></i> Get In Touch
+                    </a>
+                    <a href="resources.html" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Access Resources
+                    </a>
+                    <a href="home-page.html" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3><i class="fas fa-shield-alt"></i> SideChannel.Lab</h3>
+                    <p>A cutting-edge research initiative focused on advancing hardware security through comprehensive side-channel analysis techniques and countermeasure development.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-github"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-link"></i> Quick Navigation</h3>
+                    <ul>
+                        <li><a href="home-page.html">Home</a></li>
+                        <li><a href="home-page.html#about">About Research</a></li>
+                        <li><a href="architecture.html">System Architecture</a></li>
+                        <li><a href="results.html">Research Results</a></li>
+                        <li><a href="future-works.html">Future Directions</a></li>
+                        <li><a href="resources.html">Resources & Downloads</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <p><i class="fas fa-university"></i> Department of Computer Systems Engineering</p>
+                    <p><i class="fas fa-building"></i> Sri Lanka Institute of Information Technology</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Malabe, Sri Lanka</p>
+                    <p><i class="fas fa-envelope"></i> research@sidechannel.lab</p>
+                    <p><i class="fas fa-phone"></i> +94 71 326 5878</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SideChannel.Lab Research Project. All Rights Reserved. | Advancing Hardware Security Research</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="future_works_js.js"></script>
+</body>
+</html>

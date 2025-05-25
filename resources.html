@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources | Side-Channel Analysis Research Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4ecdc4;
+            --warning-color: #ffd93d;
+            --success-color: #6bcf7f;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #151515;
+            --bg-hover: #1f1f1f;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            
+            --border-color: #333333;
+            --shadow-color: rgba(0, 212, 255, 0.1);
+            --glow-color: rgba(0, 212, 255, 0.3);
+            
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Particle Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo img {
+            height: 80px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            transition: all 0.3s ease;
+        }
+        
+        .logo img:hover {
+            filter: drop-shadow(0 0 20px var(--primary-color));
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced Navigation */
+        nav {
+            margin-left: auto;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        nav ul li a i {
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        nav ul li a:hover::before {
+            opacity: 1;
+        }
+        
+        nav ul li a:hover {
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        nav ul li a:hover i {
+            transform: rotate(5deg) scale(1.1);
+        }
+        
+        nav ul li a.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Page Header */
+        .page-header {
+            position: relative;
+            padding: 8rem 0 6rem;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            overflow: hidden;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .page-header-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .page-header h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        
+        .page-header-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        
+        .page-header p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.1s both;
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 6rem 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .section-title.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            margin: 1.5rem auto;
+            border-radius: 2px;
+        }
+        
+        /* Resources Grid */
+        .resources-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .resource-category {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .resource-category.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .resource-category:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .category-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .category-content {
+            padding: 2rem;
+        }
+        
+        .resource-list {
+            list-style: none;
+        }
+        
+        .resource-item {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .resource-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .resource-item:hover {
+            transform: translateX(10px);
+        }
+        
+        .resource-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .resource-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        .resource-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        .resource-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .resource-meta span {
+            background: var(--bg-hover);
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.4s ease;
+            margin-right: 0.8rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .download-btn.secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .download-btn.secondary:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+        }
+        
+        .github-btn {
+            background: linear-gradient(45deg, #333, #555);
+            color: white;
+        }
+        
+        .github-btn:hover {
+            background: linear-gradient(45deg, #000, #333);
+        }
+        
+        /* Special Sections */
+        .full-width-category {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+        }
+        
+        .contact-box {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-top: 4rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contact-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.05), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+        
+        .contact-box h3 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .contact-box p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .resource-note {
+            background: linear-gradient(135deg, rgba(255, 217, 61, 0.1), rgba(255, 217, 61, 0.05));
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 0 10px 10px 0;
+            color: var(--text-secondary);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 0 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-col h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .footer-col p, .footer-col li {
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-col a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            nav ul {
+                gap: 0.25rem;
+                padding: 0.4rem;
+            }
+            
+            nav ul li a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            .resources-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            nav {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.08);
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            nav ul li a {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .page-header {
+                padding: 6rem 0 4rem;
+            }
+            
+            .resources-container {
+                grid-template-columns: 1fr;
+            }
+            
+            section {
+                padding: 4rem 0;
+            }
+            
+            .resource-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="img/logo.png" alt="Research Project Logo">
+                <div class="logo-text"></div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="home-page.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="index.html#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="templates/index.html"><i class="fas fa-sitemap"></i> Demo</a></li>
+                    <li><a href="results.html"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="future-works.html"><i class="fas fa-rocket"></i> Future Works</a></li>
+                    <li><a href="resources.html" class="active"><i class="fas fa-download"></i> Resources</a></li>
+                    <li><a href="home-page.html#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <div class="page-header-subtitle">&lt;/&gt; Download Center</div>
+                <h1>Resources & Downloads</h1>
+                <p>Access comprehensive research data, source code, technical documentation, and publications related to our advanced side-channel analysis platform.</p>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div class="container">
+            <div class="resources-container">
+                <div class="resource-category">
+                    <div class="category-header">
+                        <h3><i class="fas fa-database"></i> Dataset Files</h3>
+                        <p>Anonymized sample data for analysis and research</p>
+                    </div>
+                    <div class="category-content">
+                        <ul class="resource-list">
+                            <li class="resource-item">
+                                <div class="resource-title">Power Trace Dataset (Anonymized)</div>
+                                <div class="resource-description">Comprehensive collection of power consumption traces captured during DES encryption operations. Includes precise timing information, metadata, and statistical analysis ready data for research purposes.</div>
+                                <div class="resource-meta">
+                                    <span><i class="fas fa-file-csv"></i> CSV Format</span>
+                                    <span><i class="fas fa-weight"></i> 24.5 MB</span>
+                                    <span><i class="fas fa-calendar"></i> Updated: April 2025</span>
+                                </div>
+                                <a href="#" class="download-btn">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </a>
+                            </li>
+                            <li class="resource-item">
+                                <div class="resource-title">EM Leakage Dataset (Anonymized)</div>
+                                <div class="resource-description">Electromagnetic emission measurements collected during cryptographic operations on various embedded devices. Data includes frequency spectrum analysis and temporal correlation patterns.</div>
+                                <div class="resource-meta">
+                                    <span><i class="fas fa-file-csv"></i> CSV Format</span>
+                                    <span><i class="fas fa-weight"></i> 18.3 MB</span>  
+                                    <span><i class="fas fa-calendar"></i> Updated: April 2025</span>
+                                </div>
+                                <a href="#" class="download-btn">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </a>
+                            </li>
+                            <li class="resource-item">
+                                <div class="resource-title">Timing Analysis Dataset (Anonymized)</div>
+                                <div class="resource-description">Detailed timing measurements for cryptographic operations under different input conditions, including execution time variations and statistical distributions.</div>
+                                <div class="resource-meta">
+                                    <span><i class="fas fa-file-csv"></i> CSV Format</span>
+                                    <span><i class="fas fa-weight"></i> 8.7 MB</span>  
+                                    <span><i class="fas fa-calendar"></i> Updated: April 2025</span>
+                                </div>
+                                <a href="#" class="download-btn">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="resource-category">
+                    <div class="category-header">
+                        <h3><i class="fas fa-file-alt"></i> Documentation & Diagrams</h3>
+                        <p>Technical documentation and visual resources</p>
+                    </div>
+                    <div class="category-content">
+                        <ul class="resource-list">
+                            <li class="resource-item">
+                                <div class="resource-title">Hardware Setup Schematics</div>
+                                <div class="resource-description">Detailed circuit diagrams and connection schematics for the power analysis and electromagnetic measurement setups, including component specifications and assembly instructions.</div>
+                                <div class="resource-meta">
+                                    <span><i class="fas fa-file-pdf"></i> PDF, SVG</span>
+                                    <span><i class="fas fa-weight"></i> 3.2 MB</span>  
+                                    <span><i class="fas fa-calendar"></i> Updated: January 2025</span>
+                                </div>
+                                <a href="#" class="download-btn">
+                                    <i class="fas fa-file-pdf"></i> Download PDF
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resource-category full-width-category">
+                <div class="category-header">
+                    <h3><i class="fas fa-book"></i> Research Reports & Theses</h3>
+                    <p>Comprehensive research documentation and academic papers</p>
+                </div>
+                <div class="category-content">
+                    <ul class="resource-list">
+                        <li class="resource-item">
+                            <div class="resource-title">Power-Based Side-Channel Attack Analysis on Cryptographic Hardware</div>
+                            <div class="resource-description">An in-depth thesis exploring the correlation between power consumption patterns and cryptographic operations, including real-time data capture methodologies and machine learning-driven attack models for embedded systems security evaluation.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 1.2 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: April 2025</span>
+                                <span><i class="fas fa-user"></i> Lead: Chethanike Anjana</span>
+                            </div>
+                            <a href="files/Power-Based Side-Channel Attack Analysis on Cryptographic Hardware.pdf" class="download-btn">
+                                <i class="fas fa-download"></i> Download Thesis
+                            </a>
+                        </li>
+                        <li class="resource-item">
+                            <div class="resource-title">Timing Attack Strategies for Cryptographic Leakage Detection</div>
+                            <div class="resource-description">This comprehensive thesis investigates how variations in execution time during encryption processes can leak sensitive information, outlining advanced analysis techniques and experimental results across multiple embedded system test scenarios.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 2.8 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: February 2025</span>
+                                <span><i class="fas fa-user"></i> Lead: Chamika Kusal</span>
+                            </div>
+                            <a href="files/Timing Attack Strategies for Cryptographic Leakage Detection.pdf" class="download-btn">
+                                <i class="fas fa-download"></i> Download Thesis
+                            </a>
+                        </li>
+                        <li class="resource-item">
+                            <div class="resource-title">Electromagnetic Emanations and Their Impact on Cryptographic Security</div>
+                            <div class="resource-description">A comprehensive study of electromagnetic radiation emitted by microcontrollers during cryptographic operations, including advanced data collection methods, signal processing techniques, and attack feasibility analysis.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 2.8 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: February 2025</span>
+                                <span><i class="fas fa-user"></i> Lead: Rivi Perera</span>
+                            </div>
+                            <a href="files/Electromagnetic Emanations and Their Impact on Cryptographic Security.pdf" class="download-btn">
+                                <i class="fas fa-download"></i> Download Thesis
+                            </a>
+                        </li>
+                        <li class="resource-item">
+                            <div class="resource-title">Effectiveness of Masking Techniques Against Modern Side-Channel Attacks</div>
+                            <div class="resource-description">This thesis evaluates the efficiency of algorithmic and hardware-level masking strategies designed to reduce information leakage in power, timing, and electromagnetic channels, with practical implementation guidelines.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 2.8 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: February 2025</span>
+                                <span><i class="fas fa-user"></i> Lead: Theshan Wijesinghe</span>
+                            </div>
+                            <a href="files/Effectiveness of Masking Techniques Against Modern Side-Channel Attacks.pdf" class="download-btn">
+                                <i class="fas fa-download"></i> Download Thesis
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="resource-category full-width-category">
+                <div class="category-header">
+                    <h3><i class="fas fa-newspaper"></i> Publications & Papers</h3>
+                    <p>Peer-reviewed research papers and conference publications</p>
+                </div>
+                <div class="category-content">
+                    <ul class="resource-list">
+                        <li class="resource-item">
+                            <div class="resource-title">Investigating Power Analysis Attacks on Symmetric Encryption: A Case Study on DES with Arduino</div>
+                            <div class="resource-description">This comprehensive study demonstrates practical power analysis attacks on DES encryption implemented on Arduino platforms, providing insights into vulnerability patterns and defensive strategies for embedded cryptographic implementations.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 1.2 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: 2023</span>
+                                <span><i class="fas fa-university"></i> Journal Publication</span>
+                            </div>
+                            <a href="#" class="download-btn">
+                                <i class="fas fa-download"></i> Download Paper
+                            </a>
+                            <a href="#" class="download-btn secondary">
+                                <i class="fas fa-quote-left"></i> Citation
+                            </a>
+                        </li>
+                        <li class="resource-item">
+                            <div class="resource-title">Dual-Method Side-Channel DES Key Recovery Using Timestamp and Machine Learning</div>
+                            <div class="resource-description">Novel approach combining timing analysis with machine learning algorithms for efficient cryptographic key recovery, demonstrating the effectiveness of hybrid side-channel attack methodologies in real-world scenarios.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 2.1 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: 2022</span>
+                                <span><i class="fas fa-users"></i> Conference Paper</span>
+                            </div>
+                            <a href="#" class="download-btn">
+                                <i class="fas fa-download"></i> Download Paper
+                            </a>
+                            <a href="#" class="download-btn secondary">
+                                <i class="fas fa-quote-left"></i> Citation
+                            </a>
+                        </li>
+                        <li class="resource-item">
+                            <div class="resource-title">Novel Approach to Power Analysis Countermeasures</div>
+                            <div class="resource-description">Research paper presented at the International Cryptography Conference detailing our novel countermeasure approach against sophisticated power analysis attacks on embedded cryptographic systems.</div>
+                            <div class="resource-meta">
+                                <span><i class="fas fa-file-pdf"></i> PDF Format</span>
+                                <span><i class="fas fa-weight"></i> 1.2 MB</span>  
+                                <span><i class="fas fa-calendar"></i> Published: April 2025</span>
+                                <span><i class="fas fa-users"></i> Conference Paper</span>
+                            </div>
+                            <a href="#" class="download-btn">
+                                <i class="fas fa-download"></i> Download Paper
+                            </a>
+                            <a href="#" class="download-btn secondary">
+                                <i class="fas fa-quote-left"></i> Citation
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            
+
+            <div class="resource-note">
+                <h4><i class="fas fa-exclamation-triangle"></i> Important Notice</h4>
+                <p>All datasets provided have been anonymized and sanitized for research purposes. The tools and methodologies shared are intended for educational and research use only. Please ensure compliance with your local laws and institutional policies when conducting security research.</p>
+            </div>
+
+            <div class="contact-box">
+                <h3><i class="fas fa-handshake"></i> Need Additional Resources?</h3>
+                <p>If you require specific datasets, source code, or technical documentation not listed here, or have questions about implementing our methodologies in your research, our team is here to help.</p>
+                <a href="mailto:chethanike18803@gmail.com" class="download-btn" style="margin-top: 1rem;">
+                    <i class="fas fa-envelope"></i> Contact Research Team
+                </a>
+                <a href="home-page.html#team" class="download-btn secondary" style="margin-top: 1rem;">
+                    <i class="fas fa-users"></i> Meet Our Team
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3><i class="fas fa-shield-alt"></i> SideChannel.Lab</h3>
+                    <p>A cutting-edge research initiative focused on advancing hardware security through comprehensive side-channel analysis techniques and countermeasure development.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-github"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-link"></i> Quick Navigation</h3>
+                    <ul>
+                        <li><a href="home-page.html">Home</a></li>
+                        <li><a href="index.html#about">About Research</a></li>
+                        <li><a href="architecture.html">System Architecture</a></li>
+                        <li><a href="results.html">Research Results</a></li>
+                        <li><a href="future-works.html">Future Directions</a></li>
+                        <li><a href="resources.html">Resources & Downloads</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <p><i class="fas fa-university"></i> Department of Computer Systems Engineering</p>
+                    <p><i class="fas fa-building"></i> Sri Lanka Institute of Information Technology</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Malabe, Sri Lanka</p>
+                    <p><i class="fas fa-envelope"></i> chethanike18803@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +94 71 326 5878</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SideChannel.Lab Research Project. All Rights Reserved. | Advancing Hardware Security Research</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loading Animation
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Particle System
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create particles
+            createParticles();
+
+            // Observe elements for animation
+            const animateElements = document.querySelectorAll(
+                '.section-title, .resource-category'
+            );
+
+            animateElements.forEach(el => {
+                observer.observe(el);
+            });
+
+            // Staggered animation for resource categories
+            const resourceItems = document.querySelectorAll('.resource-category');
+            resourceItems.forEach((item, index) => {
+                item.style.transitionDelay = (index * 0.1) + 's';
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Dynamic navbar background on scroll
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 100) {
+                    header.style.background = 'rgba(17, 17, 17, 0.95)';
+                    header.style.backdropFilter = 'blur(20px)';
+                } else {
+                    header.style.background = 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)';
+                    header.style.backdropFilter = 'blur(10px)';
+                }
+            });
+
+            // Enhanced button hover effects
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.02)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Parallax effect for page header
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const pageHeader = document.querySelector('.page-header');
+                const rate = scrolled * -0.5;
+                if (pageHeader) {
+                    pageHeader.style.transform = `translateY(${rate}px)`;
+                }
+            });
+
+            // Dynamic particle movement based on mouse
+            document.addEventListener('mousemove', (e) => {
+                const particles = document.querySelectorAll('.particle');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                particles.forEach((particle, index) => {
+                    const speed = (index % 5 + 1) * 0.5;
+                    const xMove = (x - 0.5) * speed;
+                    const yMove = (y - 0.5) * speed;
+                    particle.style.transform = `translate(${xMove}px, ${yMove}px)`;
+                });
+            });
+
+            // Copy citation functionality
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                if (btn.textContent.includes('Citation')) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Here you would implement citation copying logic
+                        const title = this.closest('.resource-item').querySelector('.resource-title').textContent;
+                        const citation = `"${title}" - SideChannel.Lab Research Project, 2025`;
+                        
+                        navigator.clipboard.writeText(citation).then(() => {
+                            // Visual feedback
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            this.style.background = 'var(--success-color)';
+                            
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                                this.style.background = '';
+                            }, 2000);
+                        });
+                    });
+                }
+            });
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const pageHeader = document.querySelector('.page-header');
+            if (pageHeader) {
+                pageHeader.style.transform = `translateY(${scrolled * -0.3}px)`;
+            }
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+    </script>
+</body>
+</html>
