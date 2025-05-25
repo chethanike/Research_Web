@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side-Channel Analysis Demo | Key Generator & Matcher</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4ecdc4;
+            --warning-color: #ffd93d;
+            --success-color: #6bcf7f;
+            --danger-color: #ff4757;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #151515;
+            --bg-hover: #1f1f1f;
+            --bg-input: #1e1e1e;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            
+            --border-color: #333333;
+            --shadow-color: rgba(0, 212, 255, 0.1);
+            --glow-color: rgba(0, 212, 255, 0.3);
+            
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Particle Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--bg-primary);
+            box-shadow: 0 5px 15px var(--glow-color);
+        }
+        
+        .logo-text {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .back-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        /* Demo Section */
+        .demo-section {
+            padding: 3rem 0;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--bg-primary);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+            background: var(--bg-hover);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .form-help {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            font-family: var(--font-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid var(--bg-primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Messages */
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            border-left: 4px solid;
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .message-success {
+            background: rgba(107, 207, 127, 0.1);
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .message-warning {
+            background: rgba(255, 217, 61, 0.1);
+            border-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .message-error {
+            background: rgba(255, 71, 87, 0.1);
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .message-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .download-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .download-link:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        /* Results Section */
+        .results-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            margin-top: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .results-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .results-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+        }
+        
+        .results-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .key-list {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            border: 1px solid var(--border-color);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .key-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .key-item:hover {
+            background: rgba(0, 212, 255, 0.05);
+            padding-left: 1rem;
+        }
+        
+        .key-item:last-child {
+            border-bottom: none;
+        }
+        
+        .key-value {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .similarity-score {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-vulnerable {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .status-secure {
+            background: rgba(107, 207, 127, 0.2);
+            color: var(--success-color);
+        }
+        
+        .closest-key-result {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .closest-key-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .closest-key-value {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-input);
+            border-radius: 2px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .demo-card {
+                padding: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero {
+                padding: 3rem 0;
+            }
+            
+            .results-container {
+                padding: 2rem;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div>
+                    <div class="logo-text">DES Key Analyzer</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Interactive Demo Platform</div>
+                </div>
+            </div>
+            <a href="C:\Users\ASUS\Documents\SLIIT\Research\Website\home-page.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Research
+            </a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-subtitle">&lt;/&gt; Live Vulnerability Testing</div>
+                <h1>DES Key Generator & Security Matcher</h1>
+                <p>Experience our side-channel analysis capabilities firsthand. Generate cryptographic keys, upload your own datasets, and test vulnerability patterns in real-time using our advanced matching algorithms.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="container">
+            <div class="demo-grid">
+                <!-- Key Generation Card -->
+                <div class="demo-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Generate Key Dataset</div>
+                            <div class="card-subtitle">Time-based cryptographic key generation</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-plus"></i> Start Date & Time
+                        </label>
+                        <div class="form-row">
+                            <input type="date" id="startDate" class="form-input">
+                            <input type="time" id="startTime" class="form-input" step="1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-check"></i> End Date & Time
+                        </label>
+                        <div class="form-row">
+                            <input type="date" id="endDate" class="form-input">
+                            <input type="time" id="endTime" class="form-input" step="1">
+                        </div>
+                    </div>
+                    
+                    <button onclick="generateKeys()" class="btn btn-primary btn-full" id="generateBtn">
+                        <i class="fas fa-cogs"></i>
+                        Generate Key Dataset
+                    </button>
+                    
+                    <div id="genMsg"></div>
+                    <div class="progress-container" id="genProgress" style="display: none;">
+                        <div class="progress-bar" id="genProgressBar"></div>
+                    </div>
+                </div>
+
+                <!-- File Upload Card -->
+                <div class="demo-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Upload Key Dataset</div>
+                            <div class="card-subtitle">Import existing cryptographic keys</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-file-code"></i> Select Key File (.txt files only)
+                        </label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="keyFile" class="file-input" accept=".txt">
+                            <label for="keyFile" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span id="fileLabel">Choose file or drag & drop</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button onclick="uploadKeys()" class="btn btn-secondary btn-full" id="uploadBtn">
+                        <i class="fas fa-upload"></i>
+                        Upload & Process
+                    </button>
+                    
+                    <div id="uploadMsg"></div>
+                    <div class="progress-container" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar" id="uploadProgressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Matching Section -->
+            <div class="demo-card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">Vulnerability Pattern Matcher</div>
+                        <div class="card-subtitle">Test key security against known patterns</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-shield-alt"></i> Enter 16-Character Hexadecimal Key
+                    </label>
+                    <input type="text" id="userKey" class="form-input" placeholder="e.g., 1A2B3C4D5E6F7890" maxlength="16">
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i> Enter exactly 16 hexadecimal characters (0-9, A-F)
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="matchKey()" class="btn btn-primary" id="matchBtn" style="flex: 1;">
+                        <i class="fas fa-shield-alt"></i>
+                        Analyze Security
+                    </button>
+                    <button onclick="generateRandomKey()" class="btn btn-secondary">
+                        <i class="fas fa-dice"></i>
+                        Random Key
+                    </button>
+                </div>
+                
+                <div id="results"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize particles on page load
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    setDefaultDateTime();
+});
+
+// Create animated particles background
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 30;
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Set default date/time values
+function setDefaultDateTime() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 8);
+    
+    // Set start date to today and start time to current time
+    document.getElementById('startDate').value = today;
+    document.getElementById('startTime').value = currentTime;
+    
+    // Set end date to today and end time to 1 hour from now
+    const endTime = new Date(now.getTime() + 3600000);
+    document.getElementById('endDate').value = today;
+    document.getElementById('endTime').value = endTime.toTimeString().split(' ')[0].substring(0, 8);
+}
+
+// Handle file input change
+document.getElementById('keyFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name || 'Choose file or drag & drop';
+    document.getElementById('fileLabel').textContent = fileName;
+});
+
+// Generate random hex key
+function generateRandomKey() {
+    const chars = '0123456789ABCDEF';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('userKey').value = key;
+    
+    // Add visual feedback
+    const input = document.getElementById('userKey');
+    input.style.background = 'rgba(0, 212, 255, 0.1)';
+    setTimeout(() => {
+        input.style.background = 'var(--bg-input)';
+    }, 1000);
+}
+
+// Set loading state for buttons
+function setLoading(buttonId, isLoading) {
+    const btn = document.getElementById(buttonId);
+    if (isLoading) {
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.setAttribute('data-original', originalText);
+        btn.innerHTML = '<div class="loading"></div> Processing...';
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.getAttribute('data-original');
+    }
+}
+
+// Show message with different types
+function showMessage(containerId, message, type = 'info') {
+    const container = document.getElementById(containerId);
+    container.innerHTML = `<div class="message message-${type}">${message}</div>`;
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 5000);
+}
+
+// Show progress bar
+function showProgress(progressId, progressBarId, show = true) {
+    const progress = document.getElementById(progressId);
+    const progressBar = document.getElementById(progressBarId);
+    
+    if (show) {
+        progress.style.display = 'block';
+        let width = 0;
+        const interval = setInterval(() => {
+            width += Math.random() * 30;
+            if (width >= 100) {
+                width = 100;
+                clearInterval(interval);
+            }
+            progressBar.style.width = width + '%';
+        }, 200);
+    } else {
+        progress.style.display = 'none';
+        progressBar.style.width = '0%';
+    }
+}
+
+// Generate keys function
+async function generateKeys() {
+    const startDate = document.getElementById('startDate').value;
+    const startTime = document.getElementById('startTime').value;
+    const endDate = document.getElementById('endDate').value;
+    const endTime = document.getElementById('endTime').value;
+
+    // Validation
+    if (!startDate || !startTime || !endDate || !endTime) {
+        showMessage('genMsg', 'Please fill in all date and time fields.', 'error');
+        return;
+    }
+
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    const endDateTime = new Date(`${endDate}T${endTime}`);
+
+    if (startDateTime >= endDateTime) {
+        showMessage('genMsg', 'End time must be after start time.', 'error');
+        return;
+    }
+
+    // Check if time range is too large (more than 24 hours)
+    const timeDiff = (endDateTime - startDateTime) / (1000 * 60 * 60);
+    if (timeDiff > 24) {
+        showMessage('genMsg', 'Time range cannot exceed 24 hours for performance reasons.', 'warning');
+        return;
+    }
+
+    setLoading('generateBtn', true);
+    showProgress('genProgress', 'genProgressBar', true);
+
+    try {
+        const response = await fetch('/generate_keys', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                startDate: startDate,
+                startTime: startTime, // Remove the :00 addition
+                endDate: endDate,
+                endTime: endTime
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage('genMsg', 
+                `Keys generated successfully! <a href="${data.download}" class="download-link">Download Keys</a>`, 
+                'success'
+            );
+        } else {
+            showMessage('genMsg', data.error || 'Error generating keys.', 'error');
+        }
+    } catch (error) {
+        showMessage('genMsg', 'Network error. Please try again.', 'error');
+    } finally {
+        setLoading('generateBtn', false);
+        showProgress('genProgress', 'genProgressBar', false);
+    }
+}
+
+// Upload keys function
+async function uploadKeys() {
+    const fileInput = document.getElementById('keyFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        showMessage('uploadMsg', 'Please select a file to upload.', 'error');
+        return;
+    }
+
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+        showMessage('uploadMsg', 'Only .txt files are allowed.', 'error');
+        return;
+    }
+
+    // Check file size (limit to 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showMessage('uploadMsg', 'File size must be less than 10MB.', 'error');
+        return;
+    }
+
+    setLoading('uploadBtn', true);
+    showProgress('uploadProgress', 'uploadProgressBar', true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/upload_keys', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage('uploadMsg', data.message, 'success');
+        } else {
+            showMessage('uploadMsg', data.error || 'Error uploading file.', 'error');
+        }
+    } catch (error) {
+        showMessage('uploadMsg', 'Network error. Please try again.', 'error');
+    } finally {
+        setLoading('uploadBtn', false);
+        showProgress('uploadProgress', 'uploadProgressBar', false);
+    }
+}
+
+// Match key function
+async function matchKey() {
+    const userKey = document.getElementById('userKey').value.trim().toUpperCase();
+
+    // Validation
+    if (!userKey) {
+        showMessage('results', 'Please enter a key to analyze.', 'error');
+        return;
+    }
+
+    // Validate hex format (exactly 16 characters)
+    const hexPattern = /^[0-9A-F]{16}$/;
+    if (!hexPattern.test(userKey)) {
+        showMessage('results', 'Key must be exactly 16 hexadecimal characters (0-9, A-F).', 'error');
+        return;
+    }
+
+    setLoading('matchBtn', true);
+
+    try {
+        const response = await fetch('/match_key', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userKey: userKey
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            displayResults(data);
+        } else {
+            showMessage('results', data.error || 'Error analyzing key.', 'error');
+        }
+    } catch (error) {
+        showMessage('results', 'Network error. Please try again.', 'error');
+    } finally {
+        setLoading('matchBtn', false);
+    }
+}
+
+// Function to highlight matching characters
+function highlightMatches(userKey, generatedKey) {
+    let highlightedKey = '';
+    for (let i = 0; i < generatedKey.length; i++) {
+        const char = generatedKey[i];
+        if (i < userKey.length && userKey[i].toLowerCase() === char.toLowerCase()) {
+            highlightedKey += `<span style="background: rgba(0, 212, 255, 0.3); color: var(--primary-color); font-weight: bold; border-radius: 3px; padding: 0 2px;">${char}</span>`;
+        } else {
+            highlightedKey += char;
+        }
+    }
+    return highlightedKey;
+}
+
+// Display analysis results
+function displayResults(data) {
+    const resultsContainer = document.getElementById('results');
+    const userKey = document.getElementById('userKey').value.trim().toUpperCase();
+    
+    const statusClass = data.status === 'vulnerable' ? 'status-vulnerable' : 'status-secure';
+    const statusIcon = data.status === 'vulnerable' ? 'fas fa-exclamation-triangle' : 'fas fa-shield-alt';
+    const statusText = data.status === 'vulnerable' ? 'Vulnerable' : 'Secure';
+
+    const topKeysHtml = data.topKeys.map(key => 
+        `<div class="key-item">
+            <span class="key-value">${highlightMatches(userKey, key.key.toUpperCase())}</span>
+            <span class="similarity-score">${key.similarity}%</span>
+        </div>`
+    ).join('');
+
+    resultsContainer.innerHTML = `
+        <div class="results-container">
+            <div class="results-header">
+                <div class="results-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="results-title">Security Analysis Results</div>
+                <div class="status-indicator ${statusClass}">
+                    <i class="${statusIcon}"></i>
+                    ${statusText}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color);">
+                <div class="closest-key-title">Your Input Key</div>
+                <div class="closest-key-value" style="color: var(--warning-color);">${userKey}</div>
+            </div>
+
+            <div class="closest-key-result">
+                <div class="closest-key-title">Most Similar Key (Binary Analysis)</div>
+                <div class="closest-key-value">${highlightMatches(userKey, data.closestKey.toUpperCase())}</div>
+                <div style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    Binary Similarity: <span style="color: var(--accent-color); font-weight: 600;">${data.binarySimilarity}%</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <div class="closest-key-title">Top ${data.topKeys.length} Similar Keys (Byte-level Analysis)</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    <i class="fas fa-lightbulb"></i> Matching characters are highlighted in blue
+                </div>
+            </div>
+            
+            <div class="key-list">
+                ${topKeysHtml}
+            </div>
+
+            <div class="message message-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Analysis Summary:</strong> 
+                ${data.status === 'vulnerable' 
+                    ? `Your key shows high similarity (${data.binarySimilarity}%) to generated patterns, indicating potential vulnerability to side-channel attacks.`
+                    : `Your key appears secure with low similarity (${data.binarySimilarity}%) to known vulnerable patterns.`
+                }
+            </div>
+        </div>
+    `;
+}
+
+// Input validation for hex characters only
+document.getElementById('userKey').addEventListener('input', function(e) {
+    let value = e.target.value.toUpperCase();
+    // Remove non-hex characters
+    value = value.replace(/[^0-9A-F]/g, '');
+    // Limit to 16 characters
+    if (value.length > 16) {
+        value = value.substring(0, 16);
+    }
+    e.target.value = value;
+});
+
+// Add Enter key support for key input
+document.getElementById('userKey').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        matchKey();
+    }
+});
+
+// Add drag and drop support for file upload
+const fileInputLabel = document.querySelector('.file-input-label');
+const fileInput = document.getElementById('keyFile');
+
+fileInputLabel.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--primary-color)';
+    this.style.background = 'rgba(0, 212, 255, 0.1)';
+});
+
+fileInputLabel.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--border-color)';
+    this.style.background = 'var(--bg-input)';
+});
+
+fileInputLabel.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--border-color)';
+    this.style.background = 'var(--bg-input)';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        document.getElementById('fileLabel').textContent = files[0].name;
+    }
+});
+        
+     </script>
+</body>
+</html>
